@@ -110,7 +110,7 @@ router.post("/", async (req, res) => {
         Defs.objectType_clientInstance,
         clientToken,
         Defs.statusUserNotInWhiteList,
-        "User name " + userName + " does not have permission to register"
+        'User name "' + userName + '" does not have permission to register'
       ),
       60 * 1000
     );
