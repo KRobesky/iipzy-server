@@ -3,8 +3,11 @@ const router = express.Router();
 
 const Defs = require("iipzy-shared/src/defs");
 const { log, timestampToString } = require("iipzy-shared/src/utils/logFile");
+const { handleError } = require("iipzy-shared/src/utils/handleError");
+
 const { sendEmail } = require("../utils/emailSender");
 const { generateRandomCode } = require("../utils/generateRandomCode");
+const { sendDelayedResults } = require("../utils/sendDelayedResults");
 const {
   deleteUser,
   getUser,
@@ -104,7 +107,17 @@ router.post("/", async (req, res) => {
       "user",
       "info"
     );
-    return;
+    return sendDelayedResults(
+      res,
+      Defs.httpStatusBadRequest,
+      handleError(
+        Defs.objectType_clientInstance,
+        params.tgtClientToken,
+        Defs.statusUserNotInWhiteList,
+        "User name " + userName + " does not have permission to register"
+      ),
+      60 * 1000
+    );
   }
 
   const verificationCode = generateRandomCode(6, { type: "number" });
