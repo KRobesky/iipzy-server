@@ -102,17 +102,13 @@ router.post("/", async (req, res) => {
   log("post user: emailAddress=" + emailAddress, "user", "info");
 
   if (!(await isUserWhiteListed(userName))) {
-    log(
-      "post user: user is not white listed.  Dropping request" + userName,
-      "user",
-      "info"
-    );
+    log("(Error) post user: user is not white listed", "user", "error");
     return sendDelayedResults(
       res,
       Defs.httpStatusBadRequest,
       handleError(
         Defs.objectType_clientInstance,
-        params.tgtClientToken,
+        clientToken,
         Defs.statusUserNotInWhiteList,
         "User name " + userName + " does not have permission to register"
       ),
