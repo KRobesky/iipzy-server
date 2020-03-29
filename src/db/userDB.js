@@ -134,6 +134,33 @@ async function insertUser(
   return results;
 }
 
+async function isUserWhiteListed(userName) {
+  log(">>>isUserWhiteListed", "user", "info");
+
+  const connection = await getConnection("isUserWhiteListed");
+
+  let ok = false;
+
+  try {
+    let selectStatement =
+      "SELECT COUNT(*) AS Count FROM UserWhiteList WHERE UserName = ?";
+    selectStatement = format(selectStatement, [userName]);
+    log("select: '" + selectStatement + "'", "user", "info");
+
+    const { result, fields } = await query(connection, selectStatement);
+    if (result.length > 0) ok = result[0].Count > 0;
+  } catch (err) {
+    log("(Exception) getUser: " + err, "user", "info");
+    results = handleDBException("user", "", "select", err);
+  }
+
+  release(connection, "isUserWhiteListed");
+
+  log("<<<isUserWhiteListed: " + ok, "user", "info");
+
+  return ok;
+}
+
 async function setNewPassword(userName, passwordResetCode, password) {
   log(">>>setNewPassword", "user", "info");
 
@@ -392,6 +419,7 @@ module.exports = {
   deleteUser,
   getUser,
   insertUser,
+  isUserWhiteListed,
   setNewPassword,
   setPasswordResetCode,
   updateUser,

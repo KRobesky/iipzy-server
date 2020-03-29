@@ -9,6 +9,7 @@ const {
   deleteUser,
   getUser,
   insertUser,
+  isUserWhiteListed,
   setNewPassword,
   setPasswordResetCode,
   updateUser,
@@ -96,6 +97,15 @@ router.post("/", async (req, res) => {
   log("post user: userName=" + userName, "user", "info");
   log("post user: mobilePhoneNo=" + mobilePhoneNo, "user", "info");
   log("post user: emailAddress=" + emailAddress, "user", "info");
+
+  if (!isUserWhiteListed(userName)) {
+    log(
+      "post user: user is not white listed.  Dropping request" + userName,
+      "user",
+      "info"
+    );
+    return;
+  }
 
   const verificationCode = generateRandomCode(6, { type: "number" });
 
