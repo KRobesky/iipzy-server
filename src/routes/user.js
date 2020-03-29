@@ -98,7 +98,7 @@ router.post("/", async (req, res) => {
   log("post user: mobilePhoneNo=" + mobilePhoneNo, "user", "info");
   log("post user: emailAddress=" + emailAddress, "user", "info");
 
-  if (!isUserWhiteListed(userName)) {
+  if (!(await isUserWhiteListed(userName))) {
     log(
       "post user: user is not white listed.  Dropping request" + userName,
       "user",
