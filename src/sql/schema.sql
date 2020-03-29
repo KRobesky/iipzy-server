@@ -33,7 +33,6 @@ CREATE TABLE `UserWhiteList` (
   `CreateTime` datetime DEFAULT CURRENT_TIMESTAMP,
   `UpdateTime` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `UserName` varchar(128) NOT NULL,
-  `MaxAppliances` int(11) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Id_UNIQUE` (`id`),
   UNIQUE KEY `Name_UNIQUE` (`UserName`)
