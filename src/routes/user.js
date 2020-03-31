@@ -112,7 +112,7 @@ router.post("/", async (req, res) => {
         Defs.statusUserNotInWhiteList,
         'User name "' + userName + '" does not have permission to register'
       ),
-      60 * 1000
+      15 * 1000
     );
   }
 
