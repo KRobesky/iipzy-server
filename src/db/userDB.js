@@ -402,7 +402,7 @@ async function verifyUser(userId, verificationCode) {
         Defs.statusInvalidVerificationCode,
         "Invalid verification code"
       );
-    }
+    } else results = { isVerified };
   } catch (err) {
     log("(Exception) verifyUser: " + err, "user", "info");
     results = handleDBException("user", "", "update", err);
