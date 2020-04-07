@@ -16,7 +16,7 @@ const {
   setClientName,
   // updateClientAuthToken
   updateClientOnLineState,
-  updateClientLocalIPAddress
+  updateClientLocalIPAddress,
 } = require("../db/clientDB");
 const { ispDB_init, getIPAddressTimezoneId } = require("../db/ispDB");
 const { isValidClient } = require("./validateClient");
@@ -75,7 +75,9 @@ router.get("/", async (req, res) => {
   )
     return;
 
-  res.send(await getClients(req.ip, localSentinelsOnly));
+  const userId = localSentinelsOnly ? isLoggedIn(authToken) : 0;
+
+  res.send(await getClients(req.ip, localSentinelsOnly, userId));
 });
 
 router.get("/timezoneid", async (req, res) => {

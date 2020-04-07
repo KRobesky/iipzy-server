@@ -16,7 +16,7 @@ const {
   setNewPassword,
   setPasswordResetCode,
   updateUser,
-  verifyUser
+  verifyUser,
 } = require("../db/userDB");
 const { isLoggedIn } = require("../db/authDB");
 
@@ -78,7 +78,7 @@ router.get("/", async (req, res) => {
     userName: results.userName,
     mobilePhoneNo: results.mobilePhoneNo,
     emailAddress: results.emailAddress,
-    isAdmin: results.isAdmin
+    isAdmin: results.isAdmin,
   });
 });
 
@@ -110,7 +110,7 @@ router.post("/", async (req, res) => {
         Defs.objectType_clientInstance,
         clientToken,
         Defs.statusUserNotInWhiteList,
-        'User name "' + userName + '" does not have permission to register'
+        'User "' + userName + '" does not have permission to register'
       ),
       15 * 1000
     );

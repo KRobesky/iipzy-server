@@ -15,7 +15,7 @@ const {
   format,
   getConnection,
   query,
-  release
+  release,
 } = require("../utils/mysql");
 // const TokenCache = require("../utils/TokenCache");
 // const { getAuthTokenUserId } = require("./authTokenCache");
@@ -29,7 +29,7 @@ const {
   modClientToken,
   modClientTokenIsOnLine,
   modClientTokenTimestamp,
-  remClientToken
+  remClientToken,
 } = require("./clientTokenCache");
 const { addEvent, addEventWithConnection } = require("./eventDB");
 
@@ -39,7 +39,7 @@ function scheduleDailyWork() {
   rule.hour = 8; // NB: UTC
   rule.minute = 3;
 
-  const j = schedule.scheduleJob(rule, async function() {
+  const j = schedule.scheduleJob(rule, async function () {
     log("running daily cleanup", "clnt", "info");
     await dailyCleanup();
   });
@@ -137,7 +137,7 @@ async function createClient(
     selectStatement = format(selectStatement, [
       publicIPAddress,
       localIPAddress,
-      clientType
+      clientType,
     ]);
     log("select: '" + selectStatement + "'", "clnt", "info");
 
@@ -153,7 +153,7 @@ async function createClient(
         userId,
         authToken,
         isOnLine,
-        clientToken
+        clientToken,
       ]);
       log("update: '" + updateStatement + "'", "clnt", "info");
 
@@ -173,7 +173,7 @@ async function createClient(
         clientName,
         userId,
         authToken,
-        isOnLine
+        isOnLine,
       ]);
       log("insert: '" + insertStatement + "'", "clnt", "info");
 
@@ -243,7 +243,7 @@ async function createClientBySerialNumber(
 
     selectStatement = format(selectStatement, [
       publicIPAddress,
-      localIPAddress
+      localIPAddress,
     ]);
     log("select: '" + selectStatement + "'", "clnt", "info");
 
@@ -302,7 +302,7 @@ async function createClientBySerialNumber(
         clientToken,
         clientType,
         clientName,
-        userId
+        userId,
       ]);
       log("insert: '" + insertStatement + "'", "clnt", "info");
 
@@ -316,7 +316,7 @@ async function createClientBySerialNumber(
         publicIPAddress,
         localIPAddress,
         interfaceName,
-        id
+        id,
       ]);
       log("update: '" + updateStatement + "'", "clnt", "info");
 
@@ -350,7 +350,7 @@ async function createClientBySerialNumber(
         userId,
         isOnLine: false,
         isLoggedIn: authToken !== null,
-        message
+        message,
       });
 
       await addEventWithConnection(
@@ -422,7 +422,7 @@ async function createClientX(
       "SELECT Id, ClientToken FROM ClientInstance WHERE PublicIPAddress = ? AND LocalIPAddress = ?";
     selectStatement = format(selectStatement, [
       publicIPAddress,
-      localIPAddress
+      localIPAddress,
     ]);
     log("select: '" + selectStatement + "'", "clnt", "info");
 
@@ -454,7 +454,7 @@ async function createClientX(
         interfaceName,
         clientToken,
         clientType,
-        clientName
+        clientName,
       ]);
       log("insert: '" + insertStatement + "'", "clnt", "info");
 
@@ -574,7 +574,7 @@ async function getAllowIperf3Use(clientToken) {
       "SELECT Iperf3UseCountDaily FROM ClientInstance WHERE ClientToken = ? AND Iperf3UseCountDaily < ?";
     selectStatement = format(selectStatement, [
       clientToken,
-      iperf3UseCountDailyLimit
+      iperf3UseCountDailyLimit,
     ]);
 
     const { result, fields } = await query(connection, selectStatement);
@@ -614,7 +614,7 @@ async function getClient(clientToken) {
       localIPAddress: result[0].LocalIPAddress,
       publicIPAddress: result[0].PublicIPAddress,
       isOnLine: result[0].IsOnLine ? true : false,
-      isWiFi: result[0].InterfaceName && result[0].InterfaceName === "wlan0"
+      isWiFi: result[0].InterfaceName && result[0].InterfaceName === "wlan0",
     };
   } catch (err) {
     log("(Exception) getClient: " + err, "clnt", "info");
@@ -628,12 +628,14 @@ async function getClient(clientToken) {
   return results;
 }
 
-async function getClients(publicIPAddress, localSentinelsOnly) {
+async function getClients(publicIPAddress, localSentinelsOnly, userId) {
   log(
     ">>>getClients: publicIPAddress = " +
       publicIPAddress +
       ", localSentinelsOnly = " +
-      localSentinelsOnly,
+      localSentinelsOnly +
+      ", userId = " +
+      userId,
     "clnt",
     "info"
   );
@@ -644,7 +646,7 @@ async function getClients(publicIPAddress, localSentinelsOnly) {
 
   try {
     let selectStatement;
-    if (!localSentinelsOnly) {
+    if (!localSentinelsOnly && !userId) {
       selectStatement =
         "SELECT *, UserName, IspName, SentinelUpdateTime, SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
@@ -652,13 +654,23 @@ async function getClients(publicIPAddress, localSentinelsOnly) {
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
         "ORDER BY ClientName";
     } else {
-      selectStatement =
-        "SELECT *, UserName, IspName FROM ClientInstance " +
-        "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
-        "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-        "WHERE PublicIPAddress = ? AND ClientType = 'appliance' " +
-        "ORDER BY ClientName";
-      selectStatement = format(selectStatement, [publicIPAddress]);
+      if (!userId) {
+        selectStatement =
+          "SELECT *, UserName, IspName FROM ClientInstance " +
+          "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
+          "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
+          "WHERE PublicIPAddress = ? AND ClientType = 'appliance' " +
+          "ORDER BY ClientName";
+        selectStatement = format(selectStatement, [publicIPAddress]);
+      } else {
+        selectStatement =
+          "SELECT *, UserName, IspName FROM ClientInstance " +
+          "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
+          "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
+          "WHERE UserId = ? AND PublicIPAddress = ? AND ClientType = 'appliance' " +
+          "ORDER BY ClientName";
+        selectStatement = format(selectStatement, [userId, publicIPAddress]);
+      }
     }
 
     log("select: '" + selectStatement + "'", "clnt", "info");
@@ -685,7 +697,7 @@ async function getClients(publicIPAddress, localSentinelsOnly) {
         sentinelUpdateTime: result[i].SentinelUpdateTime,
         sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
         sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
-        updaterUpdateTime: result[i].UpdaterUpdateTime
+        updaterUpdateTime: result[i].UpdaterUpdateTime,
       });
     }
   } catch (err) {
@@ -750,7 +762,7 @@ async function getServerURLForClient(userId) {
     const { result, fields } = await query(connection, selectStatement);
     results = {
       serverURL: result[0].ServerURL,
-      serverPort: result[0].serverPort
+      serverPort: result[0].serverPort,
     };
   } catch (err) {
     log("(Exception) getServerURLForClient: " + err, "clnt", "info");
@@ -870,7 +882,7 @@ async function updateClientAuthToken(clientToken, authToken, userId, isOnLine) {
       userId,
       authToken,
       isOnLine,
-      clientToken
+      clientToken,
     ]);
     log("update: '" + updateStatement + "'", "clnt", "info");
 
@@ -880,7 +892,7 @@ async function updateClientAuthToken(clientToken, authToken, userId, isOnLine) {
       clientType,
       isOnLinePrev,
       isLoggedInPrev,
-      timestamp
+      timestamp,
     } = getClientToken(clientToken);
 
     modClientToken(
@@ -1067,7 +1079,7 @@ async function checkClientOnLineStatus() {
         isOnLine,
         isOnLinePrev,
         isLoggedInPrev,
-        timestamp
+        timestamp,
       } = value;
 
       log(">>>iterateClientTokenCache", "clnt", "info");
@@ -1140,7 +1152,7 @@ async function checkClientOnLineStatus() {
             isOnLinePrev,
             isLoggedInPrev,
             timestamp,
-            eventClass: Defs.eventClass_clientOnLineStatus
+            eventClass: Defs.eventClass_clientOnLineStatus,
           });
         }
       }
@@ -1158,7 +1170,7 @@ async function checkClientOnLineStatus() {
           isOnLinePrev,
           isLoggedInPrev,
           timestamp,
-          eventClass: Defs.eventClass_clientLoginStatus
+          eventClass: Defs.eventClass_clientLoginStatus,
         });
       }
       log("<<<iterateClientTokenCache", "clnt", "info");
@@ -1177,7 +1189,7 @@ async function checkClientOnLineStatus() {
         isOnLinePrev,
         isLoggedInPrev,
         timestamp,
-        eventClass
+        eventClass,
       } = changeCache[i];
 
       log("-----report eventClass = " + eventClass, "clnt", "info");
@@ -1215,7 +1227,7 @@ async function checkClientOnLineStatus() {
         userId,
         isOnLine,
         isLoggedIn: authToken != null,
-        message
+        message,
       });
 
       await addEvent(
@@ -1318,5 +1330,5 @@ module.exports = {
   updateClientAuthToken,
   updateClientIperf3UseCount,
   updateClientLocalIPAddress,
-  updateClientOnLineState
+  updateClientOnLineState,
 };
