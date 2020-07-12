@@ -654,23 +654,23 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
         "ORDER BY ClientName";
     } else {
-      if (!userId) {
-        selectStatement =
-          "SELECT *, UserName, IspName FROM ClientInstance " +
-          "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
-          "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-          "WHERE PublicIPAddress = ? AND ClientType = 'appliance' " +
-          "ORDER BY ClientName";
-        selectStatement = format(selectStatement, [publicIPAddress]);
-      } else {
-        selectStatement =
-          "SELECT *, UserName, IspName FROM ClientInstance " +
-          "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
-          "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-          "WHERE (UserId = ? OR UserId = 0) AND PublicIPAddress = ? AND ClientType = 'appliance' " +
-          "ORDER BY ClientName";
-        selectStatement = format(selectStatement, [userId, publicIPAddress]);
-      }
+      //if (!userId) {
+      selectStatement =
+        "SELECT *, UserName, IspName FROM ClientInstance " +
+        "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
+        "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
+        "WHERE PublicIPAddress = ? AND ClientType = 'appliance' " +
+        "ORDER BY ClientName";
+      selectStatement = format(selectStatement, [publicIPAddress]);
+      //} else {
+      //  selectStatement =
+      //    "SELECT *, UserName, IspName FROM ClientInstance " +
+      //    "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
+      //    "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
+      //    "WHERE (UserId = ? OR UserId = 0) AND PublicIPAddress = ? AND ClientType = 'appliance' " +
+      //    "ORDER BY ClientName";
+      //  selectStatement = format(selectStatement, [userId, publicIPAddress]);
+      //}
     }
 
     log("select: '" + selectStatement + "'", "clnt", "info");
