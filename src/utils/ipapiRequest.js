@@ -3,6 +3,7 @@ const fs = require("fs");
 const Defs = require("iipzy-shared/src/defs");
 const http = require("iipzy-shared/src/services/httpService");
 const { log } = require("iipzy-shared/src/utils/logFile");
+const { spawnAsync } = require("iipzy-shared/src/utils/spawnAsync");
 
 const dataPath = "/etc/iipzy";
 const ipapiConfigPath = dataPath + "/ipapi-config.json";
@@ -27,44 +28,94 @@ getIpapiCredentials();
 
 async function getIpAddressInfo(ipv4Address) {
   log("getIpAddressInfo: ipv4Address = " + ipv4Address, "ipap", "info");
-  // https://api.ipapi.com/<ipv4Address>?access_key=<ipapiAccessKey>
-  const { data, status } = await http.get(
-    "https://api.ipapi.com/" + ipv4Address + "?access_key=" + ipapiAccessKey
-  );
+  //--const { data, status } = await http.get("https://api.ipapi.com/" + ipv4Address + "?access_key=" + ipapiAccessKey);
 
-  console.log("------------status = " + status);
+  const { stdout, stderr } = await spawnAsync("curl", [
+    "--fail",
+    "--silent", 
+    "--show-error",
+    "http://ip-api.com/json/" + ipv4Address]);
+  if (stderr) {
+    log("(Error) getIpAddressInfo : stderr = " + stderr, "ipap", "error");
+    return null;
+  }
+  const data = JSON.parse(stdout);
+  log(
+    "getIpAddressInfo: data = " + JSON.stringify(data, null, 2), "ipap", "info");
 
-  if (status != Defs.httpStatusOk) {
-    log("(Error) getIpAddressInfo: status = " + status, "ipap", "error");
+  // returns
+  /*
+    {
+      "status": "success",
+      "country": "United States",
+      "countryCode": "US",
+      "region": "CA",
+      "regionName": "California",
+      "city": "Mountain View",
+      "zip": "94043",
+      "lat": 37.4043,
+      "lon": -122.0748,
+      "timezone": "America/Los_Angeles",
+      "isp": "AT&T Services, Inc.",
+      "org": "AT&T Corp",
+      "as": "AS7018 AT&T Services, Inc.",
+      "query": "108.211.109.62"
+    }
+  */
+
+  if (data.status !== "success") {
+    log("(Error) getIpAddressInfo: status = " + data.status, "ipap", "error");
     return null;
   }
 
-  if (data.error) {
-    log(
-      "(Error) getIpAddressInfo: data = " + JSON.stringify(data, null, 2),
-      "ipap",
-      "error"
-    );
-    return null;
+  let ispAutonomousSystemNumber = "0000";
+  let stringArray = data.as.split(" ");
+  if (stringArray.length > 0)
+    ispAutonomousSystemNumber = stringArray[0].substr(2);
+
+  let timezoneCode = "UTC";
+  {
+    const { stdout, stderr } = await spawnAsync("zdump", [data.timezone]);
+    if (stderr)
+      log("(Error) getIpAddressInfo : stderr = " + stderr, "ipap", "error");
+    if (stdout)
+      log("getIpAddressInfo : stdout = " + stdout, "ipap", "info");
+      // returns
+      /*
+        America/Los_Angeles  Thu Mar  9 17:07:30 2023 PST
+      */
+        let stringArray = stdout.split(" ");
+        timezoneCode = stringArray[stringArray.length-1].replace(/\n$/, "");
+  }
+
+  let timezoneGmtOffset = "+000";
+  {
+    const { stdout, stderr } = await spawnAsync("timezone_to_offset", [data.timezone]);
+    if (stderr)
+      log("(Error) getIpAddressInfo : stderr = " + stderr, "ipap", "error");
+    if (stdout) {
+      log("getIpAddressInfo : stdout = " + stdout, "ipap", "info"); 
+      timezoneGmtOffset = stdout.replace(/\n$/, "");
+    }
   }
 
   const ret = {
-    ispAutonomousSystemNumber: data.connection.asn,
-    ispName: data.connection.isp,
-    continentCode: data.continent_code,
-    continentName: data.continent_name,
-    countryCode: data.country_code,
-    countryName: data.country_name,
-    regionCode: data.region_code,
-    regionName: data.region_name,
+    ispAutonomousSystemNumber: ispAutonomousSystemNumber,
+    ispName: data.isp,
+    continentCode: "0",
+    continentName: "unknown-contenent",
+    countryCode: data.countryCode,
+    countryName: data.country,
+    regionCode: data.region,
+    regionName: data.regionName,
     city: data.city,
     zip: data.zip,
-    latitude: data.latitude,
-    longitude: data.longitude,
-    timezoneId: data.time_zone.id,
-    timezoneGmtOffset: data.time_zone.gmt_offset,
-    timezoneCode: data.time_zone.code,
-    timezoneIsDaylightSaving: data.time_zone.is_daylight_saving
+    latitude: data.lat,
+    longitude: data.lon,
+    timezoneId: data.timezone,
+    timezoneGmtOffset: timezoneGmtOffset,
+    timezoneCode: timezoneCode,
+    timezoneIsDaylightSaving: true
   };
 
   log(
