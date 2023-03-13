@@ -189,4 +189,51 @@ async function getIPAddressTimezoneId(publicIPAddress) {
   return { timezoneId };
 }
 
-module.exports = { ispDB_init, getIPAddressTimezoneId };
+async function getIPAddressTimezoneInfo(publicIPAddress) {
+  log(
+    ">>>getIPAddressTimezoneInfo: ipAddress = " + publicIPAddress,
+    "isp",
+    "info"
+  );
+
+  // check for daily third party usage at limit.  NB: $$$
+  const getOptions = { wantIpApi: true };
+  const thirdPartyUsage = await getThirdPartyApiUsageCounters(getOptions);
+  const thirdPartyUsage_Org = Object.assign({}, thirdPartyUsage);
+  log("--thrd - before: " + JSON.stringify(thirdPartyUsage, null, 2));
+
+  let timezoneInfo = {};
+
+  try {
+    if (
+      thirdPartyUsage.ipApiRequestsDaily <
+      thirdPartyUsage.ipApiRequestsDailyLimit
+    ) {
+      const ipv4Address = publicIPAddress.substring(7);
+      const ispInfo = await getIpAddressInfo(ipv4Address);
+      if (ispInfo) {
+        timezoneInfo.timezoneId = ispInfo.timezoneId;
+        timezoneInfo.timezoneGmtOffset = ispInfo.timezoneGmtOffset;
+        timezoneInfo.timezoneCode = ispInfo.timezoneCode;
+        timezoneInfo.timezoneIsDaylightSaving = ispInfo.timezoneIsDaylightSaving;
+
+        thirdPartyUsage.ipApiRequestsTotal++;
+        thirdPartyUsage.ipApiRequestsDaily++;
+      }
+    }
+  } catch (err) {
+    log("(Exception) getIPAddressTimezoneInfo: " + err, "isp", "error");
+    results = handleDBException("event", "", "select", err);
+  }
+
+  log("--thrd - after: " + JSON.stringify(thirdPartyUsage, null, 2));
+
+  if (JSON.stringify(thirdPartyUsage) !== JSON.stringify(thirdPartyUsage_Org))
+    await updateThirdPartyApiUsageCounters(getOptions, thirdPartyUsage);
+
+  log("<<<getIPAddressTimezoneInfo: timezoneInfo = " + JSON.stringify(timezoneInfo, null, 2), "isp", "info");
+
+  return timezoneInfo;
+}
+
+module.exports = { ispDB_init, getIPAddressTimezoneId, getIPAddressTimezoneInfo };

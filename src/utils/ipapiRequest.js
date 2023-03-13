@@ -127,65 +127,26 @@ async function getIpAddressInfo(ipv4Address) {
   return ret;
 
   // example of success
-  // data = {
-  //   ip: "172.217.14.174",
-  //   type: "ipv4",
-  //   continent_code: "NA",
-  //   continent_name: "North America",
-  //   country_code: "US",
-  //   country_name: "United States",
-  //   region_code: "TX",
-  //   region_name: "Texas",
-  //   city: "Dallas",
-  //   zip: "75219",
-  //   latitude: 32.8054313659668,
-  //   longitude: -96.8142318725586,
-  //   location: {
-  //     geoname_id: 4684888,
-  //     capital: "Washington D.C.",
-  //     languages: [
-  //       {
-  //         code: "en",
-  //         name: "English",
-  //         native: "English"
-  //       }
-  //     ],
-  //     country_flag: "https://assets.ipapi.com/flags/us.svg",
-  //     country_flag_emoji: "ðŸ‡ºðŸ‡¸",
-  //     country_flag_emoji_unicode: "U+1F1FA U+1F1F8",
-  //     calling_code: "1",
-  //     is_eu: false
-  //   },
-  //   time_zone: {
-  //     id: "America/Chicago",
-  //     current_time: "2019-09-19T13:36:26-05:00",
-  //     gmt_offset: -18000,
-  //     code: "CDT",
-  //     is_daylight_saving: true
-  //   },
-  //   currency: {
-  //     code: "USD",
-  //     name: "US Dollar",
-  //     plural: "US dollars",
-  //     symbol: "$",
-  //     symbol_native: "$"
-  //   },
-  //   connection: {
-  //     asn: 15169,
-  //     isp: "Google LLC"
-  //   }
-  // };
-
-  // example of failure.
-  // data = {
-  //   success: false,
-  //   error: {
-  //     code: 101,
-  //     type: "invalid_access_key",
-  //     info:
-  //       "You have not supplied a valid API Access Key. [Technical Support: support@apilayer.com]"
-  //   }
-  // };
+  /*
+  ret = {
+    "ispAutonomousSystemNumber": "7018",
+    "ispName": "AT&T Services, Inc.",
+    "continentCode": "0",
+    "continentName": "unknown-contenent",
+    "countryCode": "US",
+    "countryName": "United States",
+    "regionCode": "CA",
+    "regionName": "California",
+    "city": "Mountain View",
+    "zip": "94043",
+    "latitude": 37.4043,
+    "longitude": -122.0748,
+    "timezoneId": "America/Los_Angeles",
+    "timezoneGmtOffset": "-0800",
+    "timezoneCode": "PST",
+    "timezoneIsDaylightSaving": true
+  }
+  */
 }
 
 // function sendSMS(recipient, message) {

@@ -18,7 +18,7 @@ const {
   updateClientOnLineState,
   updateClientLocalIPAddress,
 } = require("../db/clientDB");
-const { ispDB_init, getIPAddressTimezoneId } = require("../db/ispDB");
+const { ispDB_init, getIPAddressTimezoneId, getIPAddressTimezoneInfo } = require("../db/ispDB");
 const { isValidClient } = require("./validateClient");
 
 ispDB_init();
@@ -84,13 +84,26 @@ router.get("/timezoneid", async (req, res) => {
   const clientToken = req.header("x-client-token");
 
   log(
-    "GET client/timezoneId: clientToken = " +
+    "GET client/timezoneid: clientToken = " +
       clientToken +
       timestampToString(req.header("x-timestamp")),
     "clnt"
   );
 
   res.send(await getIPAddressTimezoneId(req.ip));
+});
+
+router.get("/timezoneinfo", async (req, res) => {
+  const clientToken = req.header("x-client-token");
+
+  log(
+    "GET client/timezoneinfo: clientToken = " +
+      clientToken +
+      timestampToString(req.header("x-timestamp")),
+    "clnt"
+  );
+
+  res.send(await getIPAddressTimezoneInfo(req.ip));
 });
 
 router.post("/", async (req, res) => {
