@@ -1,24 +1,20 @@
 const fs = require("fs");
-const nodemailer = require("nodemailer");
+const sgMail = require('@sendgrid/mail')
 const os = require("os");
 
 const { log } = require("iipzy-shared/src/utils/logFile");
 
-const dataPath = process.platform === "win32" ? "c:/temp/" : "/etc/iipzy";
-const emailConfigPath = dataPath + "/email-config.json";
-let emailUserName = null;
-let emailPassword = null;
+const emailConfigPath = "/etc/iipzy/email-config.json";
 
 function getEmailCredentials() {
   try {
-    const { user, pass } = JSON.parse(fs.readFileSync(emailConfigPath));
-    log("emailCredentials: user =" + user + ", pass=" + pass, "emal", "info");
-    emailUserName = user;
-    emailPassword = pass;
+    const { sgMailApiKey } = JSON.parse(fs.readFileSync(emailConfigPath));
+    log("emailCredentials: apiKey =" + sgMailApiKey, "mail", "info");
+    sgMail.setApiKey(sgMailApiKey)
   } catch (error) {
     log(
       "(Exception) getEmailCredentials: " + error + ", code = " + error.code,
-      "emal",
+      "mail",
       "info"
     );
     return {};
@@ -27,15 +23,7 @@ function getEmailCredentials() {
 
 getEmailCredentials();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: emailUserName,
-    pass: emailPassword
-  }
-});
-
-log("emailSender: homeDir = " + os.homedir(), "emal", "info");
+log("emailSender: homeDir = " + os.homedir(), "mail", "info");
 
 let sendEmailRetryTimestamp = 0;
 const sendEmailRetryTime = 30 * 60 * 1000; // retry in 30 minutes
@@ -47,6 +35,7 @@ async function sendEmail(recipient, subject, body) {
     return false;
   }
 
+  /*
   const mailOptions = {
     from: "iipzy.com@gmail.com",
     to: recipient,
@@ -58,18 +47,41 @@ async function sendEmail(recipient, subject, body) {
     await new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, function(error, info) {
         if (error) {
-          log(error, "emal", "info");
+          log(error, "mail", "info");
           sendEmailRetryTimestamp = Date.now() + sendEmailRetryTime;
           reject(error);
         } else {
-          log("Email sent: " + info.response, "emal", "info");
+          log("Email sent: " + info.response, "mail", "info");
           sendEmailRetryTimestamp = 0;
           resolve(info);
         }
       });
     });
   } catch (ex) {
-    log("(Exception) sendEmail: " + ex, "emal", "error");
+    log("(Exception) sendEmail: " + ex, "mail", "error");
+    return false;
+  }
+  return true;
+  */
+
+  const msg = {
+    to: recipient,
+    from: "iipzy.com@gmail.com",
+    subject: subject,
+    text: body,
+    html: '<strong>iipzy</strong>',
+  }
+
+  try {
+    await sgMail.send(msg);
+    log("Email sent", "mail", "info");
+    sendEmailRetryTimestamp = 0;
+  } catch (error) {
+    log("(Error): " + error, "mail", "error"); 
+    if (error.response) {
+      log("(Error) response: " + error.response.body, "mail", "error");
+    }
+    sendEmailRetryTimestamp = Date.now() + sendEmailRetryTime;
     return false;
   }
   return true;
