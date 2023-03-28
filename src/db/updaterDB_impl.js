@@ -31,6 +31,7 @@ async function checkForUpdate(clientToken, updateStatus) {
       "updt"
     );
     //
+    /*
     if (updateInstance.starting || updateInstance.updateStatus.inProgress) {
       if (updateInstance.updateStatus.inProgress)
         updateInstance.starting = false;
@@ -42,6 +43,17 @@ async function checkForUpdate(clientToken, updateStatus) {
         }
       };
     }
+    */
+     if (updateInstance.starting) {
+      return {
+        status: Defs.statusOk,
+        results: {
+          params: updateInstance.params,
+          starting: updateInstance.starting
+        }
+      };
+    }
+    /*
     if (!updateInstance.completed) {
       updateInstance.completed = true;
       log(
@@ -49,6 +61,7 @@ async function checkForUpdate(clientToken, updateStatus) {
         "updt"
       );
     }
+    */
   } else {
     updateInstance = { updateStatus };
     log(
@@ -87,11 +100,15 @@ function setUpdateStatus(clientToken, updateStatus) {
   const updateInstance = updateInstanceByClientToken.get(clientToken);
   if (updateInstance) {
     updateInstance.updateStatus = updateStatus;
+    if (updateStatus.inProgress)
+        updateInstance.starting = false;
+    else if (updateStatus.step === "done")
+        updateInstance.completed = true;  
     log(
       "setUpdateStatus: clientToken = " +
         clientToken +
         ", updateStatus = " +
-        JSON.stringify(updateInstance.updateStatus, null, 2),
+        JSON.stringify(updateInstance, null, 2),
       "updt"
     );
   }
