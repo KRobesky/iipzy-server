@@ -69,7 +69,7 @@ async function sendEmail(recipient, subject, body) {
     from: "iipzy.com@gmail.com",
     subject: subject,
     text: body,
-    html: '<strong>iipzy</strong>',
+    html: '<strong>' + body + '</strong>',
   }
 
   try {
