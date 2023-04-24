@@ -39,7 +39,7 @@ let highCpuPercentStartTime = 0;
 let highCpuPercentAlertSent = false;
 
 async function main() {
-  configFile = new ConfigFile(userDataPath, Defs.configFilename);
+  configFile = new ConfigFile(userDataPath, Defs.configFilename, true);
   await configFile.init();
   configFile.watch(configWatchCallback);
   logLevel = configFile.get("logLevel");
@@ -102,7 +102,7 @@ async function main() {
 
   //const port = process.env.PORT || config.get("port");
 
-  const port = 8001;
+  const port = Defs.port_server;
   server = https
     .createServer(
       {
