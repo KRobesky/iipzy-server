@@ -658,7 +658,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
     } else {
       //if (!userId) {
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = " + publicIPAddress + " AS IsLocalClient FROM ClientInstance " +
+        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "WHERE ClientType = 'appliance' && userId = ClientInstance.UserId " +
