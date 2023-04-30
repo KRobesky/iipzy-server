@@ -661,7 +661,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
         "SELECT *, UserName, IspName FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-        "WHERE ClientType = 'appliance' " +
+        "WHERE ClientType = 'appliance' && userId = ClientInstance.UserId " +
         "ORDER BY ClientName";
       selectStatement = format(selectStatement, [publicIPAddress]);
       //} else {
