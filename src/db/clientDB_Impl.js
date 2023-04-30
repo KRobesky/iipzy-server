@@ -700,7 +700,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
         sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
         sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
         updaterUpdateTime: result[i].UpdaterUpdateTime,
-        isLocalClient: result[i].isLocalClient
+        isLocalClient: result[i].IsLocalClient
       });
     }
   } catch (err) {
