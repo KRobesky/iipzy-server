@@ -632,7 +632,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
   log(
     ">>>getClients: publicIPAddress = " +
       publicIPAddress +
-      ", localSentinelsOnly = " +
+      ", localSentinelsOnly (ignored) = " +
       localSentinelsOnly +
       ", userId = " +
       userId,
@@ -640,13 +640,15 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
     "info"
   );
 
+  // NB: With advent of sentinel-web proxy, localSentinelsOnly is ignored.
+
   const connection = await getConnection("getClients");
 
   let results = [];
 
   try {
     let selectStatement;
-    if (!localSentinelsOnly && !userId) {
+    if (!userId) {
       selectStatement =
         "SELECT *, UserName, IspName, SentinelUpdateTime, SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
@@ -659,7 +661,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
         "SELECT *, UserName, IspName FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-        "WHERE PublicIPAddress = ? AND ClientType = 'appliance' " +
+        "WHERE ClientType = 'appliance' " +
         "ORDER BY ClientName";
       selectStatement = format(selectStatement, [publicIPAddress]);
       //} else {
