@@ -100,9 +100,6 @@ async function main() {
   }, 60 * 1000);
   await checkProcessStopFile();
 
-  //const port = process.env.PORT || config.get("port");
-
-  const port = Defs.port_server;
   server = https
     .createServer(
       {
@@ -111,13 +108,9 @@ async function main() {
       },
       app
     )
-    .listen(port, () => {
-      log(`Listening on port ${port}...`, "main", "info");
+    .listen(Defs.port_server, () => {
+      log(`Listening on port ${Defs.port_server}...`, "main", "info");
     });
-
-  // server = app.listen(port, () =>
-  //   log(`Listening on port ${port}...`, "main", "info")
-  // );
 }
 
 function configWatchCallback() {
