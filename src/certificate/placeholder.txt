@@ -1,1 +1,0 @@
-Install server.cert and server.key here.

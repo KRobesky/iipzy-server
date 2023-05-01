@@ -103,8 +103,8 @@ async function main() {
   server = https
     .createServer(
       {
-        key: fs.readFileSync(__dirname + "/certificate/server.key"),
-        cert: fs.readFileSync(__dirname + "/certificate/server.cert")
+        key: fs.readFileSync(Defs.server_key),
+        cert: fs.readFileSync(Defs.server_cert)
       },
       app
     )
