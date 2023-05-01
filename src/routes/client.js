@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Defs = require("iipzy-shared/src/defs");
 const { log, timestampToString } = require("iipzy-shared/src/utils/logFile");
-const { isLoggedIn } = require("../db/authDB");
+const { isAdmin, isLoggedIn } = require("../db/authDB");
 const { checkForAction } = require("../db/administratorDB");
 const {
   createClient,
@@ -76,8 +76,9 @@ router.get("/", async (req, res) => {
     return;
 
   const userId = localSentinelsOnly ? isLoggedIn(authToken) : 0;
+  const isAdmin_ = isAdmin(authToken);
 
-  res.send(await getClients(req.ip, localSentinelsOnly, userId));
+  res.send(await getClients(req.ip, localSentinelsOnly, userId, isAdmin_));
 });
 
 router.get("/timezoneid", async (req, res) => {

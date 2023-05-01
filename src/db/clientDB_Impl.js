@@ -628,7 +628,7 @@ async function getClient(clientToken) {
   return results;
 }
 
-async function getClients(publicIPAddress, localSentinelsOnly, userId) {
+async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) {
   log(
     ">>>getClients: publicIPAddress = " +
       publicIPAddress +
@@ -648,9 +648,10 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId) {
 
   try {
     let selectStatement;
-    if (!userId) {
+    if (!userId || isAdmin) {
       selectStatement =
-        "SELECT *, UserName, IspName, SentinelUpdateTime, SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
+        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, SentinelUpdateTime, " +
+        "SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
