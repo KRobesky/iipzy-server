@@ -648,7 +648,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
 
   try {
     let selectStatement;
-    if (!userId || isAdmin) {
+    if (isAdmin) {
       selectStatement =
         "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, SentinelUpdateTime, " +
         "SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
@@ -656,8 +656,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
         "ORDER BY ClientName";
-    } else {
-      //if (!userId) {
+    } else if (userId) {
       selectStatement =
         "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
@@ -674,35 +673,41 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
       //    "ORDER BY ClientName";
       //  selectStatement = format(selectStatement, [userId, publicIPAddress]);
       //}
+    } else {
+
     }
 
-    log("select: '" + selectStatement + "'", "clnt", "info");
+    if (selectStatement) {
+      log("select: '" + selectStatement + "'", "clnt", "info");
 
-    const { result, fields } = await query(connection, selectStatement);
-    for (let i = 0; i < result.length; i++) {
-      results.push({
-        id: result[i].Id,
-        createTime: result[i].CreateTime,
-        updateTime: result[i].UpdateTime,
-        clientType: result[i].ClientType,
-        userName: result[i].UserName,
-        isLoggedIn: !!result[i].AuthToken,
-        clientToken: result[i].ClientToken,
-        clientName: result[i].ClientName,
-        publicIPAddress: result[i].PublicIPAddress,
-        localIPAddress: result[i].LocalIPAddress,
-        ispAutonomousSystemNumber: result[i].IspAutonomousSystemNumber,
-        ispName: result[i].IspName,
-        isOnLine: result[i].IsOnLine ? true : false,
-        isWiFi: result[i].InterfaceName && result[i].InterfaceName === "wlan0",
-        iperf3UseCountDaily: result[i].Iperf3UseCountDaily,
-        iperf3UseCountTotal: result[i].Iperf3UseCountTotal,
-        sentinelUpdateTime: result[i].SentinelUpdateTime,
-        sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
-        sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
-        updaterUpdateTime: result[i].UpdaterUpdateTime,
-        isLocalClient: result[i].IsLocalClient
-      });
+      const { result, fields } = await query(connection, selectStatement);
+      for (let i = 0; i < result.length; i++) {
+        results.push({
+          id: result[i].Id,
+          createTime: result[i].CreateTime,
+          updateTime: result[i].UpdateTime,
+          clientType: result[i].ClientType,
+          userName: result[i].UserName,
+          isLoggedIn: !!result[i].AuthToken,
+          clientToken: result[i].ClientToken,
+          clientName: result[i].ClientName,
+          publicIPAddress: result[i].PublicIPAddress,
+          localIPAddress: result[i].LocalIPAddress,
+          ispAutonomousSystemNumber: result[i].IspAutonomousSystemNumber,
+          ispName: result[i].IspName,
+          isOnLine: result[i].IsOnLine ? true : false,
+          isWiFi: result[i].InterfaceName && result[i].InterfaceName === "wlan0",
+          iperf3UseCountDaily: result[i].Iperf3UseCountDaily,
+          iperf3UseCountTotal: result[i].Iperf3UseCountTotal,
+          sentinelUpdateTime: result[i].SentinelUpdateTime,
+          sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
+          sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
+          updaterUpdateTime: result[i].UpdaterUpdateTime,
+          isLocalClient: result[i].IsLocalClient
+        });
+      }
+    } else {
+      results.push({});
     }
   } catch (err) {
     log("(Exception) getClients: " + err, "clnt", "info");
