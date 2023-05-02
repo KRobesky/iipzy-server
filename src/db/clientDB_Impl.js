@@ -658,13 +658,14 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
         "WHERE ClientType = 'appliance' " +
         "ORDER BY ClientName";
     } else if (userId) {
+      // get appliances owned by user and local unowned (i.e., new) appliances
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient FROM ClientInstance " +
-        "LEFT JOIN User ON User.Id = " + userId + " " +
+        "SELECT *, UserName, IspName, PublicIpAddress = ? AS IsLocalClient FROM ClientInstance " +
+        "LEFT JOIN User ON User.Id = ? " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-        "WHERE ClientType = 'appliance' && userId = " + userId + " " +
+        "WHERE ClientType = 'appliance' && ((userId = 0 AND PublicIPAddress = ?) OR userId = ?) " +
         "ORDER BY ClientName";
-      selectStatement = format(selectStatement, [publicIPAddress, userId, userId]);
+      selectStatement = format(selectStatement, [publicIPAddress, userId, publicIPAddress, userId]);
       //} else {
       //  selectStatement =
       //    "SELECT *, UserName, IspName FROM ClientInstance " +
@@ -688,6 +689,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
           createTime: result[i].CreateTime,
           updateTime: result[i].UpdateTime,
           clientType: result[i].ClientType,
+          userId: result[i].UserId,
           userName: result[i].UserName,
           isLoggedIn: !!result[i].AuthToken,
           clientToken: result[i].ClientToken,
