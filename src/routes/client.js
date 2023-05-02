@@ -76,9 +76,8 @@ router.get("/", async (req, res) => {
     return;
 
   const userId = localSentinelsOnly ? isLoggedIn(authToken) : 0;
-  const isAdmin_ = isAdmin(authToken);
 
-  res.send(await getClients(req.ip, localSentinelsOnly, userId, isAdmin_));
+  res.send(await getClients(req.ip, localSentinelsOnly, userId, isAdmin(authToken)));
 });
 
 router.get("/timezoneid", async (req, res) => {

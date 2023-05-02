@@ -660,11 +660,11 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     } else if (userId) {
       selectStatement =
         "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient FROM ClientInstance " +
-        "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
+        "LEFT JOIN User ON User.Id = " + userId + " " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
-        "WHERE ClientType = 'appliance' && userId = ClientInstance.UserId " +
+        "WHERE ClientType = 'appliance' && userId = " + userId + " " +
         "ORDER BY ClientName";
-      selectStatement = format(selectStatement, [publicIPAddress]);
+      selectStatement = format(selectStatement, [publicIPAddress, userId, userId]);
       //} else {
       //  selectStatement =
       //    "SELECT *, UserName, IspName FROM ClientInstance " +
