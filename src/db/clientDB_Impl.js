@@ -650,7 +650,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     let selectStatement;
     if (isAdmin) {
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, " +
+        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient " +
         //"SentinelUpdateTime, SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime " +
         "FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
