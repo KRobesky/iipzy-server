@@ -689,11 +689,12 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
       await sleep(10*1000);
       let prev_id = 0;
       let versionInfo = [];
-      let res = {};
+      let res = null;
       for (let i = 0; i < result.length; i++) {    
         if (prev_id !=0 && prev_id !== result[i].Id) {
           res.versionInfo = versionInfo;
           results.push(res);
+          res = null;
         }  
 
         if (prev_id !== result[i].Id) {
@@ -726,12 +727,10 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
         }
         prev_id = result[i].Id;
       }
-      /*
-      if (prev_id !=0 && prev_id !== result[i].Id) {
+      if (res !== null) {
         res.versionInfo = versionInfo;
         results.push(res);
       } 
-      */
     } else {
       results.push({});
     }
