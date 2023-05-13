@@ -652,7 +652,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     if (isAdmin) {
       selectStatement =
         "SELECT ClientInstance.*, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, " +
-        "ModuleName, ModuleUpdateTime " +
+        "ModuleName, ModuleUpdateTime, ModuleVersion, ModuleSharedVersion " +
         "FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
@@ -683,9 +683,8 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
 
     if (selectStatement) {
       log("select: '" + selectStatement + "'", "clnt", "info");
-
       const { result, fields } = await query(connection, selectStatement);
-      log("---result=" + JSON.stringify(result, null, 2));
+      //log("---result=" + JSON.stringify(result, null, 2));
       let prev_id = 0;
       let versionInfo = [];
       let res = null;
@@ -720,10 +719,18 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
             isLocalClient: result[i].IsLocalClient
           }
           if (result[i].ModuleName)
-            versionInfo.push({moduleName: result[i].ModuleName, moduleUpdateTime: result[i].ModuleUpdateTime});
+            versionInfo.push({moduleName: result[i].ModuleName, 
+              moduleUpdateTime: result[i].ModuleUpdateTime,
+              moduleVersion: result[i].ModuleVersion,
+              moduleSharedVersion: result[i].ModuleSharedVersion
+            });
          } else {
           if (result[i].ModuleName)
-            versionInfo.push({moduleName: result[i].ModuleName, moduleUpdateTime: result[i].ModuleUpdateTime});
+          versionInfo.push({moduleName: result[i].ModuleName, 
+            moduleUpdateTime: result[i].ModuleUpdateTime,
+            moduleVersion: result[i].ModuleVersion,
+            moduleSharedVersion: result[i].ModuleSharedVersion
+          });     
         }
         prev_id = result[i].Id;
       }
