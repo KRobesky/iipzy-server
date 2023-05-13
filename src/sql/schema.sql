@@ -128,7 +128,24 @@ CREATE TABLE `ClientInstanceLocation` (
   CONSTRAINT `ClientInstanceLocation_ClientInstanceId` FOREIGN KEY (`ClientInstanceId`) REFERENCES `ClientInstance` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
 
+
 CREATE TABLE `ClientInstanceVersionInfo` ( 
+  `Id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+  `CreateTime` datetime DEFAULT CURRENT_TIMESTAMP, 
+  `UpdateTime` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, 
+  `ClientInstanceId` int(11) unsigned NOT NULL, 
+  `ModuleName` varchar(64) NOT NULL,
+  `ModuleUpdateTime` datetime DEFAULT NULL, 
+  `ModuleVersion` varchar(16) DEFAULT NULL,
+  `ModuleSharedVersion` varchar(16) DEFAULT NULL,
+  PRIMARY KEY (`Id`), 
+  UNIQUE KEY `Id_UNIQUE` (`Id`), 
+  UNIQUE KEY `ClientIID_ModuleName_UNIQUE` (`ClientInstanceId`,`ModuleName`),
+  CONSTRAINT `ClientInstanceVersionInfo_ClientInstanceId` FOREIGN KEY (`ClientInstanceId`) REFERENCES `ClientInstance` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+
+CREATE TABLE `ClientInstanceVersionInfo_OBSOLETE` ( 
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
   `CreateTime` datetime DEFAULT CURRENT_TIMESTAMP, 
   `UpdateTime` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, 

@@ -228,6 +228,23 @@ async function setUpdateVersionInfo(clientToken, versionInfo) {
   let results = {};
 
   const connection = await getConnection("setUpdateVersionInfo");
+  /*
+    CREATE TABLE `ClientInstanceVersionInfo` ( 
+    `Id` int(11) unsigned NOT NULL AUTO_INCREMENT, 
+    `CreateTime` datetime DEFAULT CURRENT_TIMESTAMP, 
+    `UpdateTime` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP, 
+    `ClientInstanceId` int(11) unsigned NOT NULL, 
+    `ModuleName` varchar(64) NOT NULL,
+    `ModuleUpdateTime` datetime DEFAULT NULL, 
+    `ModuleVersion` varchar(16) DEFAULT NULL,
+    `ModuleSharedVersion` varchar(16) DEFAULT NULL,
+    PRIMARY KEY (`Id`), 
+    UNIQUE KEY `Id_UNIQUE` (`Id`), 
+    UNIQUE KEY `ClientIID_ModuleName_UNIQUE` (`ClientInstanceId`,`ModuleName`),
+    CONSTRAINT `ClientInstanceVersionInfo_ClientInstanceId` FOREIGN KEY (`ClientInstanceId`) REFERENCES `ClientInstance` (`Id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8; 
+
+  */
 
   try {
     await beginTransaction(connection, "setUpdateVersionInfo");
@@ -244,73 +261,27 @@ async function setUpdateVersionInfo(clientToken, versionInfo) {
       log("select: '" + selectStatement + "'", "updt", "info");
       const { result: result2 } = await query(connection, selectStatement);
       if (result2.length > 0) {
-        // update.
-        const clientInstanceVersionInfoId = result2[0].Id;
-        let updateStatement =
-          "UPDATE ClientInstanceVersionInfo SET " +
-          "ClientInstanceId = ?," +
-          "SentinelUpdateTime = ?," +
-          "SentinelPiVersion = ?," +
-          "SentinelPiSharedVersion = ?," +
-          "SentinelAdminUpdateTime = ?," +
-          "SentinelAdminVersion = ?," +
-          "SentinelAdminSharedVersion = ?," +
-          "SentinelWebUpdateTime = ?," +
-          "SentinelWebVersion = ?," +
-          "SentinelWebSharedVersion = ?," +
-          "UpdaterUpdateTime = ?," +
-          "UpdaterVersion = ?," +
-          "UpdaterSharedVersion = ?" +
-          "WHERE Id = ?";
-        updateStatement = format(updateStatement, [
-          clientInstanceId,
-          epochToMySqlDatetime(versionInfo.iipzyPi.updateTime),
-          versionInfo.iipzyPi.version,
-          versionInfo.iipzyPi.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzySentinelAdmin.updateTime),
-          versionInfo.iipzySentinelAdmin.version,
-          versionInfo.iipzySentinelAdmin.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzySentinelWeb.updateTime),
-          versionInfo.iipzySentinelWeb.version,
-          versionInfo.iipzySentinelWeb.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzyUpdater.updateTime),
-          versionInfo.iipzyUpdater.version,
-          versionInfo.iipzyUpdater.sharedVersion,
-          clientInstanceVersionInfoId
-        ]);
-        log("update: '" + updateStatement + "'", "updt", "info");
-        await query(connection, updateStatement);
-      } else {
-        // insert
+        // delete all for clientInstanceId
+        let deleteStatement = "DELETE FROM ClientInstanceVersionInfo WHERE ClientInstanceId = ?";
+        deleteStatement = format(deleteStatement, [clientInstanceId]);
+        log("delete: '" + deleteStatement + "'", "updt", "info");
+        await query(connection, deleteStatement);
+      } 
+      // [then] insert
+      for (const [key, value] of Object.entries(versionInfo)) {     
         let insertStatement =
           "INSERT INTO ClientInstanceVersionInfo SET " +
           "ClientInstanceId = ?," +
-          "SentinelUpdateTime = ?," +
-          "SentinelPiVersion = ?," +
-          "SentinelPiSharedVersion = ?," +
-          "SentinelAdminUpdateTime = ?," +
-          "SentinelAdminVersion = ?," +
-          "SentinelAdminSharedVersion = ?," +
-          "SentinelWebUpdateTime = ?," +
-          "SentinelWebVersion = ?," +
-          "SentinelWebSharedVersion = ?," +
-          "UpdaterUpdateTime = ?," +
-          "UpdaterVersion = ?," +
-          "UpdaterSharedVersion = ?";
+          "ModuleName = ?," +
+          "ModuleUpdateTime = ?," +
+          "ModuleVersion = ?," +
+          "ModuleSharedVersion = ?";
         insertStatement = format(insertStatement, [
           clientInstanceId,
-          epochToMySqlDatetime(versionInfo.iipzyPi.updateTime),
-          versionInfo.iipzyPi.version,
-          versionInfo.iipzyPi.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzySentinelAdmin.updateTime),
-          versionInfo.iipzySentinelAdmin.version,
-          versionInfo.iipzySentinelAdmin.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzySentinelWeb.updateTime),
-          versionInfo.iipzySentinelWeb.version,
-          versionInfo.iipzySentinelWeb.sharedVersion,
-          epochToMySqlDatetime(versionInfo.iipzyUpdater.updateTime),
-          versionInfo.iipzyUpdater.version,
-          versionInfo.iipzyUpdater.sharedVersion
+          key,
+          epochToMySqlDatetime(value.updateTime),
+          value.version,
+          value.sharedVersion
         ]);
         log("insert: '" + insertStatement + "'", "updt", "info");
         await query(connection, insertStatement);
