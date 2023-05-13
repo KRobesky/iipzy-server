@@ -719,11 +719,11 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
             iperf3UseCountTotal: result[i].Iperf3UseCountTotal,
             isLocalClient: result[i].IsLocalClient
           }
-          if (result[i].moduleName)
-            versionInfo.push({moduleName: result[i].moduleName, moduleUpdateTime: result[i].moduleUpdateTime});
+          if (result[i].ModuleName)
+            versionInfo.push({moduleName: result[i].ModuleName, moduleUpdateTime: result[i].ModuleUpdateTime});
          } else {
-          if (result[i].moduleName)
-            versionInfo.push({moduleName: result[i].moduleName, moduleUpdateTime: result[i].moduleUpdateTime});
+          if (result[i].ModuleName)
+            versionInfo.push({moduleName: result[i].ModuleName, moduleUpdateTime: result[i].ModuleUpdateTime});
         }
         prev_id = result[i].Id;
       }
