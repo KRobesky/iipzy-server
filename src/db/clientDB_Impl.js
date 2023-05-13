@@ -650,8 +650,9 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     let selectStatement;
     if (isAdmin) {
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, SentinelUpdateTime, " +
-        "SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime FROM ClientInstance " +
+        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, " +
+        //"SentinelUpdateTime, SentinelAdminUpdateTime, SentinelWebUpdateTime, UpdaterUpdateTime " +
+        "FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
@@ -702,10 +703,10 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
           isWiFi: result[i].InterfaceName && result[i].InterfaceName === "wlan0",
           iperf3UseCountDaily: result[i].Iperf3UseCountDaily,
           iperf3UseCountTotal: result[i].Iperf3UseCountTotal,
-          sentinelUpdateTime: result[i].SentinelUpdateTime,
-          sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
-          sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
-          updaterUpdateTime: result[i].UpdaterUpdateTime,
+          //sentinelUpdateTime: result[i].SentinelUpdateTime,
+          //sentinelAdminUpdateTime: result[i].SentinelAdminUpdateTime,
+          //sentinelWebUpdateTime: result[i].SentinelWebUpdateTime,
+          //updaterUpdateTime: result[i].UpdaterUpdateTime,
           isLocalClient: result[i].IsLocalClient
         });
       }
