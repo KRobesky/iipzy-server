@@ -726,10 +726,12 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
         }
         prev_id = result[i].Id;
       }
+      /*
       if (prev_id !=0 && prev_id !== result[i].Id) {
         res.versionInfo = versionInfo;
         results.push(res);
       } 
+      */
     } else {
       results.push({});
     }
