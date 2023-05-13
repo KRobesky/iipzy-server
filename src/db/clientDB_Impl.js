@@ -651,7 +651,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     let selectStatement;
     if (isAdmin) {
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, " +
+        "SELECT ClientInstance.*, UserName, IspName, PublicIpAddress = \"" + publicIPAddress + "\" AS IsLocalClient, " +
         "ModuleName, ModuleUpdateTime " +
         "FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ClientInstance.UserId " +
@@ -662,7 +662,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
     } else if (userId) {
       // get appliances owned by user and local unowned (i.e., new) appliances
       selectStatement =
-        "SELECT *, UserName, IspName, PublicIpAddress = ? AS IsLocalClient FROM ClientInstance " +
+        "SELECT ClientInstance.*, UserName, IspName, PublicIpAddress = ? AS IsLocalClient FROM ClientInstance " +
         "LEFT JOIN User ON User.Id = ? " +
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "WHERE ClientType = 'appliance' && ((userId = 0 AND PublicIPAddress = ?) OR userId = ?) " +
