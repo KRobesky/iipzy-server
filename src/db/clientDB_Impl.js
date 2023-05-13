@@ -684,6 +684,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
       log("select: '" + selectStatement + "'", "clnt", "info");
 
       const { result, fields } = await query(connection, selectStatement);
+      log("---result = " + JSON.stringify(result, null, 2));
       let prev_id = 0;
       let versionInfo = [];
       let res = {};
