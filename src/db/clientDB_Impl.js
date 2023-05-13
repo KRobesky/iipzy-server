@@ -720,10 +720,10 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
             isLocalClient: result[i].IsLocalClient
           }
           if (result[i].moduleName)
-            versionInfo.push({moduleName: result[i].moduleName, {moduleUpdateTime: result[i].moduleUpdateTime});
+            versionInfo.push({moduleName: result[i].moduleName, moduleUpdateTime: result[i].moduleUpdateTime});
          } else {
           if (result[i].moduleName)
-            versionInfo.push({moduleName: result[i].moduleName, {moduleUpdateTime: result[i].moduleUpdateTime});
+            versionInfo.push({moduleName: result[i].moduleName, moduleUpdateTime: result[i].moduleUpdateTime});
         }
         prev_id = result[i].Id;
       }
