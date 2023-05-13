@@ -685,12 +685,14 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
       log("select: '" + selectStatement + "'", "clnt", "info");
 
       const { result, fields } = await query(connection, selectStatement);
+      log("---result=" + JSON.stringify(result, null, 2));
       let prev_id = 0;
       let versionInfo = [];
       let res = null;
       for (let i = 0; i < result.length; i++) {    
         if (prev_id !=0 && prev_id !== result[i].Id) {
           res.versionInfo = versionInfo;
+          versionInfo = [];
           results.push(res);
           res = null;
         }  
@@ -717,16 +719,17 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
             iperf3UseCountTotal: result[i].Iperf3UseCountTotal,
             isLocalClient: result[i].IsLocalClient
           }
-          versionInfo.push({moduleName: result[i].moduleName});
-          versionInfo.push({moduleUpdateTime: result[i].moduleUpdateTime});
-        } else {
-          versionInfo.push({moduleName: result[i].moduleName});
-          versionInfo.push({moduleUpdateTime: result[i].moduleUpdateTime});
+          if (result[i].moduleName)
+            versionInfo.push({moduleName: result[i].moduleName, {moduleUpdateTime: result[i].moduleUpdateTime});
+         } else {
+          if (result[i].moduleName)
+            versionInfo.push({moduleName: result[i].moduleName, {moduleUpdateTime: result[i].moduleUpdateTime});
         }
         prev_id = result[i].Id;
       }
       if (res !== null) {
         res.versionInfo = versionInfo;
+        versionInfo = [];
         results.push(res);
       } 
     } else {
