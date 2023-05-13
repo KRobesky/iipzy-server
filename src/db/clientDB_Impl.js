@@ -4,6 +4,7 @@ const uuidv4 = require("uuid/v4");
 const Defs = require("iipzy-shared/src/defs");
 const { handleDBException } = require("iipzy-shared/src/utils/handleError");
 const { log } = require("iipzy-shared/src/utils/logFile");
+const { sleep } = require("iipzy-shared/src/utils/utils");
 
 // NB: this reference is needed so that ipapiRequest is initialized.
 const { getIpAddressInfo } = require("../utils/ipapiRequest");
@@ -685,6 +686,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
 
       const { result, fields } = await query(connection, selectStatement);
       log("---result = " + JSON.stringify(result, null, 2));
+      await sleep(10*1000);
       let prev_id = 0;
       let versionInfo = [];
       let res = {};
