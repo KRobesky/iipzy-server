@@ -658,7 +658,7 @@ async function getClients(publicIPAddress, localSentinelsOnly, userId, isAdmin) 
         "LEFT JOIN InternetServiceProvider ON InternetServiceProvider.AutonomousSystemNumber = ClientInstance.IspAutonomousSystemNumber " +
         "LEFT JOIN ClientInstanceVersionInfo ON ClientInstanceVersionInfo.ClientInstanceId = ClientInstance.Id " +
         "WHERE ClientType = 'appliance' " +
-        "ORDER BY ClientName";
+        "ORDER BY ClientName, ClientInstanceVersionInfo.ModuleName";
     } else if (userId) {
       // get appliances owned by user and local unowned (i.e., new) appliances
       selectStatement =
