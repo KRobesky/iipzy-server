@@ -1,6 +1,7 @@
 const Defs = require("iipzy-shared/src/defs");
 const { log } = require("iipzy-shared/src/utils/logFile");
 const { format, getConnection, query, release } = require("../utils/mysql");
+const { sleep } = require("iipzy-shared/src/utils/utils");
 
 async function getIperf3Servers() {
   log(">>>getIperf3Servers", "iprf", "info");
@@ -16,6 +17,8 @@ async function getIperf3Servers() {
     log("select: '" + selectStatement + "'", "iprf", "info");
 
     const { result } = await query(connection, selectStatement);
+    log("after select: result = " + JSON.stringify(result, null, 2), "iprf", "info");
+    await sleep(5*1000);
     let servers = [];
     for (let i = 0; i < result.length; i++) {
       const row = result[i];
@@ -32,7 +35,7 @@ async function getIperf3Servers() {
         longitude: row.Longitude
       });
     }
-    if (servers.length > 0) results = { iperf3Servers: servers };
+    results = { iperf3Servers: servers };
   } catch (err) {
     log("(Exception) getIperf3Servers: " + err, "iprf", "error");
     results = handleDBException("event", "", "select", err);

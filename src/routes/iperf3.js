@@ -36,20 +36,27 @@ log("iperf3Path=" + iperf3Path, "iprf", "info");
 const iperf3ServerByInstanceGuid = new Map();
 
 async function populateIperf3Servers() {
-  const { iperf3Servers, __hadError__ } = await getIperf3Servers();
-  if (__hadError__) return;
+  try {
+    const { iperf3Servers, __hadError__ } = await getIperf3Servers();
+    if (__hadError__) return;
 
-  for (let i = 0; i < iperf3Servers.length; i++) {
-    let server = iperf3Servers[i];
-    server.token = "";
-    iperf3ServerByInstanceGuid.set(server.instanceGuid, server);
-    log("  instanceGuid     = " + server.instanceGuid, "iprf", "info");
-    log("  instanceIPV4Addr = " + server.instanceIPV4Addr, "iprf", "info");
-    log("  instanceURL      = " + server.instanceURL, "iprf", "info");
-    log("  latitude         = " + server.latitude, "iprf", "info");
-    log("  longitude        = " + server.longitude, "iprf", "info");
+    log("populateIperf3Servers: iperf3Servers = " + JSON.stringify(iperf3Servers, null, 2), "iprf", "info");
+
+    for (let i = 0; i < iperf3Servers.length; i++) {
+      let server = iperf3Servers[i];
+      server.token = "";
+      iperf3ServerByInstanceGuid.set(server.instanceGuid, server);
+      log("  instanceGuid     = " + server.instanceGuid, "iprf", "info");
+      log("  instanceIPV4Addr = " + server.instanceIPV4Addr, "iprf", "info");
+      log("  instanceURL      = " + server.instanceURL, "iprf", "info");
+      log("  latitude         = " + server.latitude, "iprf", "info");
+      log("  longitude        = " + server.longitude, "iprf", "info");
+    }
+  }catch (ex) {
+    log("(Exception) populateIperf3Servers: " + ex, "iprf", "error");
   }
 }
+
 populateIperf3Servers();
 
 function scheduleDailyWork() {
