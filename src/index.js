@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const https = require("https");
+const http = require("http");
 const fs = require("fs");
 
 const Defs = require("iipzy-shared/src/defs");
@@ -32,6 +33,7 @@ let configFile = null;
 let logLevel = undefined;
 
 let server = null;
+let server_localhost = null;
 
 const highCpuPercentAlertMinutes = 1;
 const highCpuPercentAlertThreshold = 50;
@@ -110,6 +112,14 @@ async function main() {
     )
     .listen(Defs.port_server, () => {
       log(`Listening on port ${Defs.port_server}...`, "main", "info");
+    });
+
+  server_localhost = http
+    .createServer(
+      app
+    )
+    .listen(Defs.port_server_localhost, 'localhost', () => {
+      log(`Listening for localhost on port ${Defs.port_server_localhost}...`, "main", "info");
     });
 }
 

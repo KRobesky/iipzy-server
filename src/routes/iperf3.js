@@ -219,7 +219,7 @@ router.post("/tokenused", async (req, res) => {
 
 function isValidIp(instanceIPV4Addr, reqIp) {
   // validate.
-  return instanceIPV4Addr === reqIp;
+  return instanceIPV4Addr === reqIp || reqIp === "::ffff:127.0.0.1"  || reqIp === "127.0.0.1";
 }
 
 function sansPort(url) {
