@@ -54,6 +54,7 @@ router.post("/", async (req, res) => {
     case Defs.eventClass_networkDeviceIPAddressChanged:
     case Defs.eventClass_networkDeviceStatus:
     case Defs.eventClass_pingFail:
+    case eventClass_wanIPAddressChanged:
       break;
     default:
       return sendDelayedResults(

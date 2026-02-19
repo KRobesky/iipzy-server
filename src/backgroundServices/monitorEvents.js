@@ -524,7 +524,7 @@ async function sendPendingAlerts() {
             if (
               await sendEmail(
                 result.EmailAddress,
-                "Alert from iipzy.com",
+                "Alert from iipzy.net",
                 result.Message
               )
             ) {
@@ -552,7 +552,7 @@ async function sendPendingAlerts() {
             if (
               await sendSMS(
                 phoneNumber.number,
-                "Alert from iipzy.com: " + result.Message
+                "Alert from iipzy.net: " + result.Message
               )
             ) {
               sentSMS = 1;
