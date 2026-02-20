@@ -62,6 +62,10 @@ const eventClassAlertTarget = [
   {
     eventClass: Defs.eventClass_pingFail,
     alertTarget: Defs.alertTarget_email
+  },
+  {
+    eventClass: Defs.eventClass_wanIPAddressChanged,
+    alertTarget: Defs.alertTarget_email
   }
 ];
 
@@ -289,6 +293,23 @@ async function handleClientStatus_pingFail(
   return eventData.eventId;
 }
 
+async function handleClientStatus_wanIPAddressChanged(
+  eventTuple,
+  eventActive,
+  userId,
+  eventData
+) {
+  log(">>>handleClientStatus_wanIPAddressChanged", "alrt", "info");
+  await setEventStatus(
+    eventTuple,
+    eventActive,
+    userId,
+    eventData.clientName + ": " + eventData.message
+  );
+  log("<<<handleClientStatus_wanIPAddressChanged", "alrt", "info");
+  return 0;
+}
+
 async function handleClientStatus(eventTuple, eventActive, userId, eventData) {
   switch (eventTuple.sec) {
     case Defs.eventClass_null:
@@ -322,6 +343,13 @@ async function handleClientStatus(eventTuple, eventActive, userId, eventData) {
       );
     case Defs.eventClass_pingFail:
       return await handleClientStatus_pingFail(
+        eventTuple,
+        eventActive,
+        userId,
+        eventData
+      );
+    case Defs.eventClass_wanIPAddressChanged:
+      return await handleClientStatus_wanIPAddressChanged(
         eventTuple,
         eventActive,
         userId,
